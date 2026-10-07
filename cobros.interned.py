@@ -4,11 +4,11 @@ from datetime import datetime, timedelta
 
 # Configuración de la página
 st.set_page_config(page_title="Gestor de Cobros", page_icon="🔔")
-# Estilo con la animación de Goku que SÍ funciona
+# Estilo con la animación de Goku
 st.markdown("""
 <style>
 [data-testid="stAppViewContainer"] {
-    background-image: url("https://media.giphy.com/media/ojPd9AOyqYC35fa2tT/giphy.gif");
+background-image: url("https://media.giphy.com/media/ojPd9AOyqYC35fA2tT/giphy.gif");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
