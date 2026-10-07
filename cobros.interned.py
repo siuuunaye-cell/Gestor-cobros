@@ -35,3 +35,15 @@ for c in clientes_ordenados:
     
     if st.button(f"{c['nombre']} - Vence en {dias} días"):
         st.link_button("Enviar WhatsApp", url)
+st.markdown("""
+    <style>
+        .stButton>button { border: 1px solid #00f; color: #fff; background: #000; }
+    </style>
+    <audio id="gael-audio" loop>
+      <source src="goku.mp3" type="audio/mpeg">
+    </audio>
+    <div style="margin: 20px 0;">
+        <button onclick="document.getElementById('gael-audio').play()" style="padding:10px; cursor:pointer;">❄️ Activar Aura</button>
+        <button onclick="document.getElementById('gael-audio').pause()" style="padding:10px; cursor:pointer;">🌑 Silencio</button>
+    </div>
+    """, unsafe_allow_html=True)
