@@ -4,11 +4,10 @@ from datetime import datetime, timedelta
 # Configuración de la página
 st.set_page_config(page_title="Gestor de Cobros", page_icon="🔔")
 
-# Estilo oscuro (CSS para que se vea como querés)
+# Estilo con el fondo de Goku integrado
 st.markdown("""
-    <style>
-    .stApp { background-color: #0d0d1a; color: white; }
-    .stButton>button { width: 100%; height: 60px; background-color: #3366ff; color: white; border-radius: 10px; }
+    <style>[data-testid="stAppViewContainer"] {background-image: url("https://media.giphy.com/media/4luu7qxDx1eH2/giphy.gif");background-size: cover;background-position: center;background-repeat: no-repeat;}.stApp { background-color: rgba(0, 0, 0, 0.6); color: white; }.stButton>button { width: 100%; height: 60px; background-color: #3366ff; color: white; border-radius: 10px; }
+    h1 { color: white !important; }
     </style>
     """, unsafe_allow_html=True)
 
