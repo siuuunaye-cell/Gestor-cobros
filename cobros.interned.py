@@ -1,5 +1,5 @@
 import streamlit as st
-from datetime import datetime, timedelta
+import streamlit.components.v1 as components
 
 # Configuración de la página
 st.set_page_config(page_title="Gestor de Cobros", page_icon="🔔")
@@ -35,7 +35,7 @@ for c in clientes_ordenados:
     
     if st.button(f"{c['nombre']} - Vence en {dias} días"):
         st.link_button("Enviar WhatsApp", url)
-st.markdown("""
+ components.html("""`
     <audio id="goku">
       <source src="https://files.catbox.moe/hyvwln.mp3" type="audio/mpeg">
     </audio>
@@ -47,4 +47,4 @@ st.markdown("""
             🌑 Silencio
         </button>
     </div>
-    """, unsafe_allow_html=True)
+    """, height=100)
