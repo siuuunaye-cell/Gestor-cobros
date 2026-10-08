@@ -1,6 +1,7 @@
 import streamlit as st
 import streamlit.components.v1 as components
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
+from zoneinfo import ZoneInfo
 import urllib.parse
 import sqlite3
 import hashlib
@@ -13,6 +14,15 @@ from pathlib import Path
 st.set_page_config(page_title="Gestor de Cobros", page_icon="⚡", layout="wide")
 
 DB = Path("gestor_cobros.db")
+
+# Fecha/hora oficial del panel: Argentina.
+TZ_ARGENTINA = ZoneInfo("America/Argentina/Buenos_Aires")
+
+def ahora_argentina():
+    return datetime.now(TZ_ARGENTINA)
+
+def hoy_argentina():
+    return ahora_argentina().date()
 
 # Credenciales iniciales del administrador.
 # Cambialas desde el panel de administración una vez que ingreses.
@@ -94,8 +104,9 @@ def recuperar_clientes_originales():
     ).fetchone()
 
     if admin:
-        hoy_inicial = datetime.now().replace(
-            hour=0, minute=0, second=0, microsecond=0
+        hoy_inicial = datetime.combine(
+            hoy_argentina(),
+            datetime.min.time()
         )
 
         for nombre, telefono, dias in CLIENTES_ORIGINALES:
@@ -120,7 +131,7 @@ def recuperar_clientes_originales():
                         telefono,
                         fecha,
                         admin["id"],
-                        datetime.now().isoformat(timespec="seconds")
+                        ahora_argentina().isoformat(timespec="seconds")
                     )
                 )
 
@@ -258,6 +269,48 @@ st.caption(
     f"Usuario: {user['username']}"
 )
 
+# Bienvenida hablada: usa una voz española disponible en el dispositivo/navegador.
+# Intenta priorizar una voz masculina si el navegador expone esa información.
+nombre_bienvenida = user["username"].replace("\\", "").replace('"', '\"')
+
+components.html(f"""
+<script>
+(function() {{
+    const nombre = "{nombre_bienvenida}";
+    const texto = "Bienvenido " + nombre;
+    const hablar = () => {{
+        if (!window.speechSynthesis) return;
+        window.speechSynthesis.cancel();
+
+        const u = new SpeechSynthesisUtterance(texto);
+        u.lang = "es-AR";
+        u.rate = 0.92;
+        u.pitch = 0.82;
+        u.volume = 1.0;
+
+        const voces = window.speechSynthesis.getVoices();
+        const masculina = voces.find(v =>
+            /es[-_]AR|es[-_]ES|es[-_]MX/i.test(v.lang) &&
+            /male|masculina|hombre|jorge|diego|carlos|pablo|miguel|raul/i.test(v.name)
+        );
+        const espanola = voces.find(v => /^es[-_]/i.test(v.lang));
+        if (masculina) u.voice = masculina;
+        else if (espanola) u.voice = espanola;
+
+        window.speechSynthesis.speak(u);
+    }};
+
+    if (window.speechSynthesis.getVoices().length) {{
+        setTimeout(hablar, 500);
+    }} else {{
+        window.speechSynthesis.onvoiceschanged = () => {{
+            setTimeout(hablar, 300);
+        }};
+    }}
+}})();
+</script>
+""", height=1)
+
 components.html("""
     <audio id="goku">
         <source src="https://files.catbox.moe/hyvwln.mp3" type="audio/mpeg">
@@ -378,9 +431,7 @@ if user["role"] == "admin":
     else:
         for cr in clientes_reventa:
             venc_cr = datetime.strptime(cr["vencimiento"], "%Y-%m-%d")
-            dias_cr = (venc_cr - datetime.now().replace(
-                hour=0, minute=0, second=0, microsecond=0
-            )).days
+            dias_cr = (venc_cr.date() - hoy_argentina()).days
 
             with st.container():
                 st.markdown(
@@ -518,8 +569,7 @@ if not clientes:
 
 for c in clientes:
     vencimiento = datetime.strptime(c["vencimiento"], "%Y-%m-%d")
-    hoy = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-    dias = (vencimiento - hoy).days
+    dias = (vencimiento.date() - hoy_argentina()).days
     fecha_str = vencimiento.strftime("%d/%m/%Y")
 
     with st.container():
@@ -578,7 +628,10 @@ for c in clientes:
 
             with col3:
                 if st.button("🔄 Renovar desde hoy", key=f"renew_{c['id']}"):
-                    nueva = hoy + timedelta(days=int(dias_renovar))
+                    nueva = datetime.combine(
+                        hoy_argentina(),
+                        datetime.min.time()
+                    ) + timedelta(days=int(dias_renovar))
                     conn = db()
                     conn.execute(
                         "UPDATE clients SET vencimiento=? WHERE id=?",
