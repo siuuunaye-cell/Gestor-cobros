@@ -85,5 +85,5 @@ nueva_fecha = st.date_input("Cambiar fecha:", value=c['vencimiento'], key=f"cal_
     if nueva_fecha != c['vencimiento'].date():
         st.session_state.clientes[i]['vencimiento'] = datetime.combine(nueva_fecha, datetime.min.time())
         st.rerun()
-mensaje=f"🔔 ¡RECORDATORIO IMPORTANTE!%0A%0AHola 👋 Te avisamos que tu cuenta {c['nombre']} está próxima a vencer.%0A%0A📅 Fecha de vencimiento: {fecha_str}%0A⏳ Días restantes: {dias} días%0A%0A⚡ Para evitar que tu servicio se interrumpa, podés renovarlo antes de la fecha de vencimiento.%0A%0A📲 ¿Querés renovar? Escribinos y te ayudamos con la renovación.%0A%0A🙏 ¡Gracias por seguir confiando en nuestro servicio!")
+mensaje=f"🔔 ¡RECORDATORIO IMPORTANTE!%0A%0AHola 👋 Te avisamos que tu cuenta {c['nombre']} está próxima a vencer.%0A%0A📅 Fecha de vencimiento: {fecha_str}%0A⏳ Días restantes: {dias} días%0A%0A⚡ Para evitar que tu servicio se interrumpa, podés renovarlo antes de la fecha de vencimiento.%0A%0A📲 ¿Querés renovar? Escribinos y te ayudamos con la renovación.%0A%0A🙏 ¡Gracias por seguir confiando en nuestro servicio!"
 st.link_button("Enviar WhatsApp", f"https://wa.me/{c['telefono']}?text={mensaje}")  
