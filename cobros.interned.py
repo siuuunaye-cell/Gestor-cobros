@@ -66,6 +66,71 @@ def init_db():
 init_db()
 
 # =========================
+# RECUPERAR CLIENTES ORIGINALES
+# =========================
+CLIENTES_ORIGINALES = [
+    ("Ema123", "5491165217937", 26),
+    ("Julieta123", "5491123026960", 26),
+    ("Omar12345", "5491137703801", 25),
+    ("Maria123", "5491151190334", 21),
+    ("Flor12345", "5491158521706", 3),
+    ("Diego1234", "5491150577319", 30),
+    ("Tere12345", "5491162663854", 13),
+    ("Maximo12345", "5491133821056", 12),
+    ("mely12345", "5491130740231", 15),
+    ("Pupi12345", "5491140912511", 14),
+]
+
+def recuperar_clientes_originales():
+    """
+    Recupera solamente los clientes originales que todavía no estén
+    en la base de datos. No borra ni modifica clientes existentes.
+    """
+    conn = db()
+
+    admin = conn.execute(
+        "SELECT id FROM users WHERE username=? AND role='admin'",
+        (DEFAULT_ADMIN_USER,)
+    ).fetchone()
+
+    if admin:
+        hoy_inicial = datetime.now().replace(
+            hour=0, minute=0, second=0, microsecond=0
+        )
+
+        for nombre, telefono, dias in CLIENTES_ORIGINALES:
+            # Buscar por teléfono o nombre para no crear duplicados.
+            existe = conn.execute(
+                """SELECT id FROM clients
+                   WHERE telefono=? OR nombre=? LIMIT 1""",
+                (telefono, nombre)
+            ).fetchone()
+
+            if not existe:
+                fecha = (
+                    hoy_inicial + timedelta(days=dias)
+                ).strftime("%Y-%m-%d")
+
+                conn.execute(
+                    """INSERT INTO clients
+                       (nombre, telefono, vencimiento, reseller_id, created_at)
+                       VALUES (?, ?, ?, ?, ?)""",
+                    (
+                        nombre,
+                        telefono,
+                        fecha,
+                        admin["id"],
+                        datetime.now().isoformat(timespec="seconds")
+                    )
+                )
+
+        conn.commit()
+
+    conn.close()
+
+recuperar_clientes_originales()
+
+# =========================
 # ESTILO AURA / RAYOS
 # =========================
 st.markdown("""
@@ -176,7 +241,6 @@ def login():
             else:
                 st.error("❌ Usuario o contraseña incorrectos.")
 
-    st.info("Administrador inicial: usuario `admin` · contraseña `erick2026`")
 
 login_needed = st.session_state.user is None
 if login_needed:
@@ -293,6 +357,41 @@ if user["role"] == "admin":
             )
 
     # =========================
+    # CONTROL DE CLIENTES DE REVENDEDORES
+    # =========================
+    st.subheader("🧑‍💼 CLIENTES DE MIS REVENDEDORES")
+    st.caption("Acá podés controlar quién tiene cada cliente y qué clientes agregó cada revendedor.")
+
+    conn = db()
+    clientes_reventa = conn.execute("""
+        SELECT c.*, u.username AS revendedor
+        FROM clients c
+        INNER JOIN users u ON u.id = c.reseller_id
+        WHERE c.reseller_id != ?
+          AND u.role = 'revendedor'
+        ORDER BY u.username, c.vencimiento ASC
+    """, (user["id"],)).fetchall()
+    conn.close()
+
+    if not clientes_reventa:
+        st.info("Todavía no hay clientes cargados por tus revendedores.")
+    else:
+        for cr in clientes_reventa:
+            venc_cr = datetime.strptime(cr["vencimiento"], "%Y-%m-%d")
+            dias_cr = (venc_cr - datetime.now().replace(
+                hour=0, minute=0, second=0, microsecond=0
+            )).days
+
+            with st.container():
+                st.markdown(
+                    f"### 🧑‍💼 {cr['revendedor']}  →  👤 {cr['nombre']}"
+                )
+                st.write(f"📱 Teléfono: **{cr['telefono'] or 'Sin teléfono'}**")
+                st.write(f"📅 Vencimiento: **{venc_cr.strftime('%d/%m/%Y')}**")
+                st.write(f"⏳ Días restantes: **{dias_cr}**")
+                st.divider()
+
+    # =========================
     # SEGURIDAD DEL ADMINISTRADOR
     # =========================
     with st.expander("🔐 Cambiar acceso de administrador", expanded=False):
@@ -396,11 +495,23 @@ with st.expander("Agregar cliente", expanded=False):
                 st.rerun()
 
 # =========================
-# LISTA / CONTROL
+# MIS CLIENTES
 # =========================
-st.subheader("👥 Clientes")
+st.subheader("👤 MIS CLIENTES")
 
-clientes = get_clients()
+if user["role"] == "admin":
+    conn = db()
+    clientes = conn.execute("""
+        SELECT c.*, u.username AS revendedor
+        FROM clients c
+        LEFT JOIN users u ON u.id = c.reseller_id
+        WHERE c.reseller_id=?
+        ORDER BY c.vencimiento ASC
+    """, (user["id"],)).fetchall()
+    conn.close()
+else:
+    clientes = get_clients()
+
 
 if not clientes:
     st.info("Todavía no hay clientes.")
@@ -425,10 +536,6 @@ for c in clientes:
 
         st.write(f"📅 Vencimiento: **{fecha_str}**")
         st.write(f"📱 Teléfono: **{c['telefono'] or 'Sin teléfono'}**")
-
-        # El administrador ve quién lo agregó.
-        if user["role"] == "admin":
-            st.write(f"🧑‍💼 Agregado por: **{c['revendedor'] or 'Administrador'}**")
 
         with st.expander("⚙️ Administrar cliente"):
             nueva_fecha = st.date_input(
