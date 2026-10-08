@@ -67,30 +67,23 @@ for c in st.session_state.clientes:
         st.markdown(f"<p class='alerta'>🚨 {c['nombre']} - {estado}</p>", unsafe_allow_html=True)
 if not hay_alertas: st.write("✅ Todo al día.")
 st.divider()
-
-# --- REPRODUCTOR DE AUDIO DE GOKU (INTACTO) ---
-st.components.html("""
-<audio id="goku">
-<source src="https://files.catbox.moe/hyvwln.mp3" type="audio/mpeg">
-</audio>
+# --- REPRODUCTOR DE AUDIO DE GOKU (CORREGIDO) ---
+st.markdown("""
+<audio id="goku" src="https://files.catbox.moe/hyvwln.mp3"></audio>
 <div style="margin: 10px 0;">
 <button onclick="document.getElementById('goku').play()" style="padding:10px; cursor:pointer; background-color: #000; color: #fff; border: 1px solid #00f;">❄️ Activar Aura</button>
 <button onclick="document.getElementById('goku').pause()" style="padding:10px; cursor:pointer; background-color: #000; color: #fff; border: 1px solid #00f;">🔘 Silencio</button>
 </div>
-""", height=100)
+""", unsafe_allow_html=True)
 
 # Lista
 for i, c in enumerate(st.session_state.clientes):
-    dias = (c['vencimiento'] - hoy).days
-    fecha_str = c['vencimiento'].strftime("%d/%m/%Y")
-    st.write(f"**{c['nombre']}** - Vence en {dias} días")
-    nueva_fecha = st.date_input("Cambiar fecha:", value=c['vencimiento'], key=f"cal_{i}")
+dias=(c['vencimiento'] - hoy).days
+fecha_str = c['vencimiento'].strftime("%d/%m/%Y")
+st.write(f"**{c['nombre']}** - Vence en {dias} días")
+nueva_fecha = st.date_input("Cambiar fecha:", value=c['vencimiento'], key=f"cal_{i}")
     if nueva_fecha != c['vencimiento'].date():
         st.session_state.clientes[i]['vencimiento'] = datetime.combine(nueva_fecha, datetime.min.time())
         st.rerun()
-    
-    mensaje = (f"🔔 ¡RECORDATORIO IMPORTANTE!%0A%0AHola 👋 Te avisamos que tu cuenta {c['nombre']} está próxima a vencer.%0A%0A"
-               f"📅 Fecha de vencimiento: {fecha_str}%0A⏳ Días restantes: {dias} días%0A%0A"
-               f"⚡ Para evitar que tu servicio se interrumpa, podés renovarlo antes de la fecha de vencimiento.%0A%0A"
-               f"📲 ¿Querés renovar? Escribinos y te ayudamos con la renovación.%0A%0A🙏 ¡Gracias por seguir confiando en nuestro servicio!")
-    st.link_button("Enviar WhatsApp", f"https://wa.me/{c['telefono']}?text={mensaje}")
+mensaje=f"🔔 ¡RECORDATORIO IMPORTANTE!%0A%0AHola 👋 Te avisamos que tu cuenta {c['nombre']} está próxima a vencer.%0A%0A📅 Fecha de vencimiento: {fecha_str}%0A⏳ Días restantes: {dias} días%0A%0A⚡ Para evitar que tu servicio se interrumpa, podés renovarlo antes de la fecha de vencimiento.%0A%0A📲 ¿Querés renovar? Escribinos y te ayudamos con la renovación.%0A%0A🙏 ¡Gracias por seguir confiando en nuestro servicio!")
+st.link_button("Enviar WhatsApp", f"https://wa.me/{c['telefono']}?text={mensaje}")  
