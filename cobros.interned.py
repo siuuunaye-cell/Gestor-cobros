@@ -9,35 +9,118 @@ st.set_page_config(page_title="Gestor de Cobros", page_icon="🔔")
 # Estilo
 st.markdown("""
 <style>
-    [data-testid="stAppViewContainer"] {
-        background-image: url("https://media.giphy.com/media/ojPd9AOyqYC35fA2tT/giphy.gif");
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-    }
+/* ===== AURA AZUL / FUEGO ===== */
+[data-testid="stAppViewContainer"] {
+    background-image:
+        linear-gradient(rgba(0, 0, 20, 0.72), rgba(0, 0, 20, 0.82)),
+        url("https://media.giphy.com/media/ojPd9AOyqYC35fA2tT/giphy.gif");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
 
-    .stApp {
-        background-color: rgba(0, 0, 0, 0.7);
-        color: white;
-    }
+.stApp {
+    background-color: transparent;
+    color: white;
+}
 
-    h1, h2, h3, p, div {
-        color: white !important;
-    }
+/* Letras con brillo azul */
+h1, h2, h3 {
+    color: #ffffff !important;
+    text-shadow:
+        0 0 5px #00bfff,
+        0 0 12px #008cff,
+        0 0 25px #0055ff;
+    font-weight: 900 !important;
+}
 
-    [data-testid="stVerticalBlock"] {
-        background-color: rgba(255, 255, 255, 0.1);
-        padding: 15px;
-        border-radius: 15px;
-        border: 1px solid #00f;
-    }
+/* Texto general */
+p, label, .stMarkdown, .stText, div {
+    color: #f5fbff;
+}
 
-    .stLinkButton > a {
-        background-color: #25D366 !important;
-        color: white !important;
-        border-radius: 20px !important;
-        font-weight: bold !important;
-    }
+/* Título principal */
+h1 {
+    background: linear-gradient(90deg, #ffffff, #5ee7ff, #168cff, #ffffff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 10px #008cff);
+}
+
+/* Contenedores */
+[data-testid="stVerticalBlock"] {
+    background: linear-gradient(
+        145deg,
+        rgba(0, 120, 255, 0.14),
+        rgba(0, 0, 30, 0.55)
+    );
+    padding: 15px;
+    border-radius: 18px;
+    border: 1px solid rgba(0, 183, 255, 0.65);
+    box-shadow:
+        0 0 8px rgba(0, 153, 255, 0.45),
+        inset 0 0 18px rgba(0, 80, 255, 0.08);
+}
+
+/* Botones */
+.stButton > button,
+.stLinkButton > a,
+button[kind="secondary"],
+button[kind="primary"] {
+    background: linear-gradient(135deg, #001b44, #006eff, #00cfff) !important;
+    color: white !important;
+    border: 1px solid #62eaff !important;
+    border-radius: 14px !important;
+    font-weight: 900 !important;
+    text-shadow: 0 0 6px #001eff;
+    box-shadow:
+        0 0 6px #00aaff,
+        0 0 16px rgba(0, 119, 255, 0.65),
+        inset 0 0 8px rgba(255,255,255,0.15);
+    transition: all 0.2s ease-in-out;
+}
+
+/* Efecto al pasar el dedo/mouse */
+.stButton > button:hover,
+.stLinkButton > a:hover {
+    transform: translateY(-2px) scale(1.02);
+    border-color: #ffffff !important;
+    box-shadow:
+        0 0 10px #00d9ff,
+        0 0 28px #006eff,
+        0 0 45px rgba(0, 128, 255, 0.7);
+}
+
+/* Campos */
+.stTextInput input,
+.stNumberInput input,
+.stDateInput input {
+    background: rgba(0, 10, 35, 0.85) !important;
+    color: white !important;
+    border: 1px solid #008cff !important;
+    border-radius: 10px !important;
+    box-shadow: 0 0 8px rgba(0, 140, 255, 0.35);
+}
+
+/* Expanders */
+[data-testid="stExpander"] {
+    border: 1px solid rgba(0, 183, 255, 0.6) !important;
+    border-radius: 15px !important;
+    box-shadow: 0 0 12px rgba(0, 119, 255, 0.25);
+}
+
+/* Separadores */
+hr {
+    border-color: rgba(0, 183, 255, 0.55) !important;
+    box-shadow: 0 0 8px #008cff;
+}
+
+/* Mensajes */
+.stAlert {
+    border-radius: 12px !important;
+    box-shadow: 0 0 12px rgba(0, 153, 255, 0.35);
+}
 </style>
 """, unsafe_allow_html=True)
 
